@@ -10,7 +10,7 @@ import (
 type Expenses struct {
 	Amount      int    `json:"amount"`
 	Description string `json:"description"`
-	Id          uint   `json:"id"`
+	Id          int    `json:"id"`
 }
 
 func main() {
@@ -48,11 +48,12 @@ func main() {
 				fmt.Println("a amount must be given")
 			} else {
 				fmt.Println("Expense added succesfully")
-				database = append(database, Expenses{*addInt, *addDes})
+				database = append(database, Expenses{*addInt, *addDes, len(database) + 1})
 			}
 		case "list":
 			for i := range database {
-				fmt.Println(database[i])
+				fmt.Print(database[i].Amount)
+				fmt.Printf(" %v \n", database[i].Description)
 			}
 		}
 	}
