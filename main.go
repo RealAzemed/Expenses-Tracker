@@ -5,12 +5,16 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"slices"
+	"time"
 )
+import "github.com/maniartech/gotime/v2"
 
 type Expenses struct {
 	Amount      int    `json:"amount"`
 	Description string `json:"description"`
 	Id          int    `json:"id"`
+	Time        string `json:"time"`
 }
 
 func main() {
@@ -35,6 +39,9 @@ func main() {
 	addInt := addCmd.Int("amount", 0, "amount")
 	addDes := addCmd.String("description", "", "description")
 
+	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
+	deleteId := deleteCmd.Int("id", 0, "id")
+
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: <command> <args>")
 		return
@@ -48,12 +55,25 @@ func main() {
 				fmt.Println("a amount must be given")
 			} else {
 				fmt.Println("Expense added succesfully")
-				database = append(database, Expenses{*addInt, *addDes, len(database) + 1})
+				database = append(database, Expenses{*addInt, *addDes, len(database) + 1, gotime.Format(time.Now(), "yyyy-mm-dd")})
 			}
 		case "list":
-			for i := range database {
-				fmt.Print(database[i].Amount)
-				fmt.Printf(" %v \n", database[i].Description)
+			fmt.Printf("%-10s %-20s %-25s  %s\n", "ID", "Time", "Amount", "Description")
+			for _, d := range database {
+				fmt.Printf("%-10v %-20v $%-25v %v\n", d.Id, d.Time, d.Amount, d.Description)
+			}
+		case "summary":
+			var sum int
+			for _, d := range database {
+				sum += d.Amount
+			}
+			fmt.Printf("Total Expenses: $%v", sum)
+		case "delete":
+			deleteCmd.Parse(os.Args[2:])
+			if *deleteId == 0 {
+				fmt.Println("Please Enter a id number")
+			} else {
+				slices.Delete(database, *deleteId, *deleteId+1)
 			}
 		}
 	}
