@@ -8,8 +8,9 @@ import (
 )
 
 type Expenses struct {
-	amount      int    `json:"amount"`
-	description string `json:"description"`
+	Amount      int    `json:"amount"`
+	Description string `json:"description"`
+	Id          uint   `json:"id"`
 }
 
 func main() {
@@ -49,10 +50,15 @@ func main() {
 				fmt.Println("Expense added succesfully")
 				database = append(database, Expenses{*addInt, *addDes})
 			}
-			dbjs, _ := json.Marshal(database)
-			os.WriteFile("expenses.json", dbjs, 0644)
+		case "list":
+			for i := range database {
+				fmt.Println(database[i])
+			}
 		}
 	}
+	dbjs, _ := json.Marshal(database)
+	os.WriteFile("expenses.json", dbjs, 0644)
+
 }
 
 func checkFile(filename string) error {
