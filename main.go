@@ -1,18 +1,34 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 )
 
 type Expenses struct {
-	amount      int
-	description string
+	amount      int    `json:"amount"`
+	description string `json:"description"`
 }
 
 func main() {
+
+	err := checkFile("expenses.json")
+
+	if err != nil {
+		fmt.Println("Error occured: ", err)
+	}
+
+	file, err := os.ReadFile("expenses.json")
+
+	if err != nil {
+		fmt.Println("Error Occurred", err)
+	}
+
 	database := []Expenses{}
+
+	json.Unmarshal(file, &database)
 
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
 	addInt := addCmd.Int("amount", 0, "amount")
@@ -27,15 +43,25 @@ func main() {
 		switch os.Args[1] {
 		case "add":
 			addCmd.Parse(os.Args[2:])
-			fmt.Println("amount: ", *addInt)
 			if *addInt == 0 {
 				fmt.Println("a amount must be given")
 			} else {
-				fmt.Println("\ndescription :", *addDes)
+				fmt.Println("Expense added succesfully")
 				database = append(database, Expenses{*addInt, *addDes})
 			}
-
-			fmt.Print(database)
+			dbjs, _ := json.Marshal(database)
+			os.WriteFile("expenses.json", dbjs, 0644)
 		}
 	}
+}
+
+func checkFile(filename string) error {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		_, err := os.Create(filename)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
