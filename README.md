@@ -52,5 +52,5 @@ main.go summary --month 8
 ```
 * Delete an expense by ID:
 ```bash
-go run cmd/main.go delete --id 1
+main.go delete --id 1
 ```
