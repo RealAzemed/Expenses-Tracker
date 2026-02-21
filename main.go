@@ -54,8 +54,14 @@ func main() {
 			if *addInt == 0 {
 				fmt.Println("a amount must be given")
 			} else {
-				fmt.Println("Expense added succesfully")
-				database = append(database, Expenses{*addInt, *addDes, len(database) + 1, gotime.Format(time.Now(), "yyyy-mm-dd")})
+				maxId := 0
+				for _, d := range database {
+					if d.Id > maxId {
+						maxId = d.Id
+					}
+				}
+				tempid := maxId + 1
+				database = append(database, Expenses{*addInt, *addDes, tempid, gotime.Format(time.Now(), "yyyy-mm-dd")})
 			}
 		case "list":
 			fmt.Printf("%-10s %-20s %-25s  %s\n", "ID", "Time", "Amount", "Description")
@@ -73,12 +79,18 @@ func main() {
 			if *deleteId == 0 {
 				fmt.Println("Please Enter a id number")
 			} else {
-				slices.Delete(database, *deleteId, *deleteId+1)
+				for i, d := range database {
+					if d.Id == *deleteId {
+						database = slices.Delete(database, i, i+1)
+						saveData(&database)
+						return
+					}
+				}
+				fmt.Printf("expense not found")
 			}
 		}
 	}
-	dbjs, _ := json.Marshal(database)
-	os.WriteFile("expenses.json", dbjs, 0644)
+	saveData(&database)
 
 }
 
@@ -91,4 +103,9 @@ func checkFile(filename string) error {
 		}
 	}
 	return nil
+}
+
+func saveData(database *[]Expenses) {
+	dbjs, _ := json.Marshal(database)
+	os.WriteFile("expenses.json", dbjs, 0644)
 }
