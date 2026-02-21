@@ -8,8 +8,9 @@ import (
 	"slices"
 	"strconv"
 	"time"
+
+	"github.com/maniartech/gotime/v2"
 )
-import "github.com/maniartech/gotime/v2"
 
 type Expenses struct {
 	Amount      int    `json:"amount"`
@@ -67,6 +68,7 @@ func main() {
 				}
 				tempid := maxId + 1
 				database = append(database, Expenses{*addInt, *addDes, tempid, gotime.Format(time.Now(), "yyyy-mm-dd"), gotime.Format(time.Now(), "mm")})
+				fmt.Printf("Expense added successfully (ID: %v)", tempid)
 			}
 		case "list":
 			fmt.Printf("%-10s %-20s %-25s  %s\n", "ID", "Time", "Amount", "Description")
@@ -83,7 +85,7 @@ func main() {
 				fmt.Printf("Total Expenses: $%v", sum)
 			} else {
 				summaryCmd.Parse(os.Args[2:])
-				if *summaryMonth == 0 {
+				if *summaryMonth <= 0 {
 					fmt.Println("Please enter a valid month number")
 				} else {
 					var sum int
@@ -109,7 +111,7 @@ func main() {
 						return
 					}
 				}
-				fmt.Printf("expense not found")
+				fmt.Printf("Expense not found")
 			}
 		}
 	}
